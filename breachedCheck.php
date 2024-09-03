@@ -1,6 +1,14 @@
 <?php
+require 'vendor/autoload.php';
+
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
+use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
+
+// Azure Storage account connection details
+$connectionString = getenv('AZURE_STORAGE_CONNECTION_STRING');
+$blobClient = BlobRestProxy::createBlobService($connectionString);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['passwordFile'])) {
-    $partition_directory = "E:\\Parsed\\partitions"; // Ensure double backslashes for Windows paths
     $csvFile = $_FILES['passwordFile']['tmp_name'];
     $fileHandle = fopen($csvFile, 'r');
     fgetcsv($fileHandle); // Skip the header
@@ -13,9 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['passwordFile'])) {
         $hashed_password = strtoupper(sha1($password));
         $partition = strtoupper(substr($hashed_password, 0, 3));
         $partition = strtolower($partition);
-        $partition_file = "$partition_directory\\$partition.txt"; // Ensure double backslashes for Windows paths
-        if (file_exists($partition_file)) {
-            $lines = file($partition_file);
+        $containerName = 'partition-files'; // Name of your container
+        $partitionFile = "partitions/$partition.txt"; // Path within the container
+
+        try {
+            $blob = $blobClient->getBlob($containerName, $partitionFile);
+            $stream = $blob->getContentStream();
+            $lines = [];
+            while (($line = fgets($stream)) !== false) {
+                $lines[] = $line;
+            }
+            fclose($stream);
+
             foreach ($lines as $line) {
                 list($hashed, $count) = explode(':', $line);
                 if (trim($hashed) === $hashed_password) {
@@ -26,6 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['passwordFile'])) {
                     break;
                 }
             }
+        } catch (ServiceException $e) {
+            $tableRows .= '<tr><td class="breached-first-col">' . $rowCounter . '</td><td>' . htmlspecialchars($data[0]) . '</td><td>' . htmlspecialchars($data[1]) . '</td><td>An error occurred: ' . htmlspecialchars($e->getMessage()) . '</td></tr>';
+            $rowCounter++;
         }
     }
     fclose($fileHandle);
@@ -43,4 +63,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['passwordFile'])) {
     }
 }
 ?>
-
