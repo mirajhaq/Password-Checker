@@ -1,6 +1,14 @@
 <?php
+require 'vendor/autoload.php';
+
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
+use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
+
+// Azure Storage account connection details
+$connectionString = getenv('AZURE_STORAGE_CONNECTION_STRING');
+$blobClient = BlobRestProxy::createBlobService($connectionString);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['passwordFile'])) {
-    $partition_directory = "E:\\Parsed\\partitions"; // Ensure this path is correct for your environment
     $csvFile = $_FILES['passwordFile']['tmp_name'];
     $fileHandle = fopen($csvFile, 'r');
     fgetcsv($fileHandle); // Skip the header row
@@ -31,11 +39,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['passwordFile'])) {
 
             foreach ($rows as $row) {
                 $partition = strtolower(substr($hash, 0, 3));
-                $partition_file = "$partition_directory\\$partition.txt";
+                $containerName = 'partition-files'; // Name of your container
+                $partitionFile = "partitions/$partition.txt"; // Path within the container
                 $breachStatus = "Password has not been breached."; // Default status
 
-                if (file_exists($partition_file)) {
-                    $lines = file($partition_file);
+                try {
+                    $blob = $blobClient->getBlob($containerName, $partitionFile);
+                    $stream = $blob->getContentStream();
+                    $lines = [];
+                    while (($line = fgets($stream)) !== false) {
+                        $lines[] = $line;
+                    }
+                    fclose($stream);
+
                     foreach ($lines as $line) {
                         list($hashed, $count) = explode(':', $line);
                         if (trim($hashed) === $hash) {
@@ -43,8 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['passwordFile'])) {
                             break;
                         }
                     }
-                } else {
-                    $breachStatus = "Partition file not found.";
+                } catch (ServiceException $e) {
+                    $breachStatus = "An error occurred: " . htmlspecialchars($e->getMessage());
                 }
 
                 echo '<tr>';
@@ -64,5 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['passwordFile'])) {
     }
 }
 ?>
+
 
 
