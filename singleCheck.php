@@ -11,10 +11,10 @@ $blobClient = BlobRestProxy::createBlobService($connectionString);
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
     $password = $_POST['password'];
     $hashed_password = strtoupper(sha1($password));
-    $partition = strtoupper(substr($hashed_password, 0, 3)); 
+    $partition = strtoupper(substr($hashed_password, 0, 3));
     $partition = strtolower($partition);
-    $containerName = 'partition-files'; // Replace with your container name
-    $partitionFile = "$partition.txt";
+    $containerName = 'partition-files'; // Name of your container
+    $partitionFile = "partitions/$partition.txt"; // Path within the container
 
     try {
         $blob = $blobClient->getBlob($containerName, $partitionFile);
