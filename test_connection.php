@@ -1,3 +1,4 @@
+<?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -9,3 +10,4 @@ if (file_exists($test_file)) {
 } else {
     echo "File does not exist or is not accessible.";
 }
+?>
