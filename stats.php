@@ -1,8 +1,16 @@
 <?php
+require 'vendor/autoload.php';
+
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
+use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
+
+// Azure Storage account connection details
+$connectionString = getenv('AZURE_STORAGE_CONNECTION_STRING');
+$blobClient = BlobRestProxy::createBlobService($connectionString);
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['passwordFile'])) {
-    $partition_directory = "E:\\Parsed\\partitions";
     $csvFile = $_FILES['passwordFile']['tmp_name'];
     $fileName = $_FILES['passwordFile']['name']; // Original file name
     $fileHandle = fopen($csvFile, 'r');
@@ -23,17 +31,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['passwordFile'])) {
         $hashes[$hashed_password]++;
 
         $partition = strtolower(substr($hashed_password, 0, 3));
-        $partition_file = "$partition_directory\\$partition.txt";
+        $containerName = 'partition-files'; // Name of your container
+        $partitionFile = "partitions/$partition.txt"; // Path within the container
 
-        if (file_exists($partition_file)) {
-            $lines = file($partition_file);
-            foreach ($lines as $line) {
+        try {
+            $blob = $blobClient->getBlob($containerName, $partitionFile);
+            $stream = $blob->getContentStream();
+
+            while (($line = fgets($stream)) !== false) {
                 list($hashed, $count) = explode(':', trim($line));
                 if ($hashed === $hashed_password) {
                     $breachedCount++;
                     break; // Found a match
                 }
             }
+            fclose($stream);
+        } catch (ServiceException $e) {
+            // Handle exception if the file or blob does not exist
         }
     }
 
@@ -57,4 +71,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['passwordFile'])) {
     echo json_encode($stats); // Return the JSON representation of stats
 }
 ?>
+
 
