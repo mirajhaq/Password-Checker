@@ -15,7 +15,7 @@ $date = date('Y-m-d');
 
 $blobContent = $stats; // The content to be saved
 $fileName = "stats_{$userName}_{$date}.txt"; // Blob name
-$containerName = 'stats-container'; // Name of your container
+$containerName = 'partition-files'; // Name of your container
 
 try {
     // Upload stats to Azure Blob Storage
