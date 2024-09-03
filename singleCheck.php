@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
     $hashed_password = strtoupper(sha1($password));
     $partition = strtoupper(substr($hashed_password, 0, 3)); 
     $partition = strtolower($partition);
-    $containerName = 'your-container-name'; // Replace with your container name
+    $containerName = 'partition-files'; // Replace with your container name
     $partitionFile = "$partition.txt";
 
     try {
