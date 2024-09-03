@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
         }
         echo '<p class="message">This password has not been breached.</p>';
     } else {
-        echo '<p class="message">Partition file not found.</p>';
+        echo '<p class="message">Partition file not found brah.</p>';
     }
 }
 ?>
