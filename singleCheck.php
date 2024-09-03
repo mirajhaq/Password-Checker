@@ -3,7 +3,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
     $password = $_POST['password'];
     $hashed_password = strtoupper(sha1($password));
     $partition = strtoupper(substr($hashed_password, 0, 3)); 
-    $partition_directory = "E:\Parsed\partitions";
+    $partition_directory = "\\\\192.168.1.100\\Parsed\partitions";
     $partition = strtolower($partition);
     $partition_file = "$partition_directory/$partition.txt";
     if (file_exists($partition_file)) {
