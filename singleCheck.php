@@ -13,8 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
     $hashed_password = strtoupper(sha1($password));
     $partition = strtoupper(substr($hashed_password, 0, 3));
     $partition = strtolower($partition);
-    $containerName = 'partition-files'; // Name of your container
-    $partitionFile = "partitions/$partition.txt"; // Path within the container
+    $containerName = 'partition-files'; 
+    $partitionFile = "partitions/$partition.txt"; 
 
     try {
         // Check if the blob exists
