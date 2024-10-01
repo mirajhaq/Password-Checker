@@ -15,6 +15,7 @@ Reasons why we want to create a local version as opposed to using an online serv
 Only responsibility is we have to ensure that the breached password data stays up to date
 
 Steps
+
 Downloading the Pwned Passwords
 
 As of May 2022, the best way to get the most up to date passwords is to use the Pwned Passwords downloader. The downloaded password hashes may be integrated into other systems and used to verify whether a password has previously appeared in a data breach after which a system may warn the user or even block the password outright. For suggestions on integration practices, read the Pwned Passwords launch blog post for more information.
