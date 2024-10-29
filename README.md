@@ -24,3 +24,21 @@ https://github.com/HaveIBeenPwned/PwnedPasswordsDownloader
 
 The first link takes you to their "haveibeenpwned-downloader" which is a dotnet tool, to download alll Pwned Passwords hash ranes and save them offline so they can be used without a dependency on the k-anonoymity API.
 
+
+
+Index Page (index.html):
+
+Tabs and Forms: The index.html file includes tabs for switching between different functionalities (Single Password Check, CSV Checker, etc.). Each tab displays a different form.
+JavaScript Functions:
+changeTab(evt, tabName): Switches between tabs.
+checkPassword(): Sends a password to singleCheck.php and displays the result.
+checkCSV(event): Handles CSV file uploads, processes them using csvCheck.php, and then fetches additional results from breachedCheck.php and dupeCheck.php.
+filterBreached() and groupDupe(): Toggle between displaying breached results and duplicate results.
+saveStats(): Sends statistics to saveStats.php for saving.
+downloadCSV(): Generates and downloads a CSV file with the results.
+CSV Check (csvCheck.php):
+
+CSV Processing: Reads the CSV file, processes each password, and checks if it’s breached using hashed password partitions. Outputs an HTML table with results.
+Breached Check (breachedCheck.php):
+
+Breached Passwords: Similar to csvCheck.php, but focuses on collecting and outputting only breached passwords in HTML format.
